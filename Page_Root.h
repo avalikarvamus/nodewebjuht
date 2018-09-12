@@ -1,3 +1,4 @@
+const char PAGE_Root[] PROGMEM = R"=====(
 <!DOCTYPE html>
 <html><head>
 <meta http-equiv="content-type" content="text/html; charset=windows-1257">
@@ -32,3 +33,15 @@ Temperature: <div id="celsius"></div>
 <script src="script.js"></script>
 </body>
 </html>
+)=====";
+
+void sendRootPage()
+{
+    if (server.args() > 0 )  // Are there any POST/GET Fields ?
+    {
+       for ( uint8_t i = 0; i < server.args(); i++ ) {  // Iterate through the fields
+
+        }
+    }
+    server.send ( 200, "text/html", PAGE_Root );
+}

@@ -1,4 +1,5 @@
-$( "#ledon" ).click( function () {
+const char PAGE_microajax_js[] PROGMEM = R"=====(
+  $( "#ledon" ).click( function () {
   $.get( "/ajax/ledon", function( data ) {
     $( "#result" ).html( data );
   });}
@@ -33,3 +34,4 @@ $( "#stop" ).click(function() {
     $( "#result" ).html( data );
   });
 });
+)=====";
