@@ -10,20 +10,24 @@ const char* ssid = "own";
 const char* password = "pown";
  
 int ledPin = 13; // GPIO13
+int greenPin = 15; // GPIO13
  
 void setup() {
   Serial.begin(115200);
   delay(10);
  
   pinMode(ledPin, OUTPUT);
+  pinMode(greenPin, OUTPUT);
   digitalWrite(ledPin, LOW);
+  digitalWrite(greenPin, LOW);
  
   // Connect to WiFi network
   Serial.println();
   Serial.println();
   Serial.print("Connecting to ");
   Serial.println(ssid);
- 
+
+  WiFi.hostname("nodewebjuht"); 
   WiFi.begin(ssid, password);
   digitalWrite(ledPin, HIGH);
  
@@ -37,6 +41,9 @@ void setup() {
   Serial.println("");
   Serial.println("WiFi connected");
   digitalWrite(ledPin, LOW);
+  digitalWrite(greenPin, HIGH);
+  delay(250);
+  digitalWrite(greenPin, LOW);
   
   // Start the server
 
@@ -50,24 +57,28 @@ void setup() {
   Serial.println("/");
 
   server.on("/",handleWeb);
-  server.on("/ajax",handleAjax); 
+  //server.on("/ajax",handleAjax);
+
+  server.on ( "/microajax.js", []() {
+    Serial.println("microajax.js");
+    server.send ( 200, "text/plain", PAGE_microajax_js );
+  } );
+
+  server.on ( "/favicon.ico",   []() {
+        Serial.println("favicon.ico");
+        server.send ( 200, "text/html", "" );
+      }  );
  
 }
 
 void handleWeb() {
-    // Return the response
-  //client.println("HTTP/1.1 200 OK");
-  //client.println("Content-Type: text/html");
-  //client.println(""); //  do not forget this one
-  //server.send(200,"text/xml",web);
+  Serial.println("returning root");
+  server.send ( 200, "text/html", PAGE_Root );
 }
 
 void handleAjax() {
-    // Return the response
-  //client.println("HTTP/1.1 200 OK");
-  //client.println("Content-Type: text/html");
-  //client.println(""); //  do not forget this one
-  //server.send(200,"text/xml",ajax);
+  Serial.println("returning ajax");
+  server.send(200,"text/xml", PAGE_microajax_js);
 }
  
 void loop() {
