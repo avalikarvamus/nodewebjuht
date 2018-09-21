@@ -1,15 +1,8 @@
 const char PAGE_Root[] PROGMEM = R"=====(
 <!DOCTYPE html>
 <html><head>
-<meta http-equiv="content-type" content="text/html; charset=windows-1257">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
 <script>
-var Socket;
-function init() {
-  Socket = new WebSocket('ws://' + window.location.hostname + ':81/');
-  Socket.onmessage = function(event) {
-    document.getElementById("rxConsole").value += event.data;
-  }
-};
 </script>
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
 <style>
