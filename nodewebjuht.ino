@@ -2,9 +2,14 @@
 #include <ESP8266WebServer.h>
 #include <WebSocketsServer.h>
 
+#include <OneWire.h>
+#include <DallasTemperature.h>
+
 #include "global.h"
 #include "Page_Root.h"
 #include "Page_Script.js.h"
+
+#define ONE_WIRE_BUS            D4 
  
 const char* ssid = "own";
 const char* password = "pown";
@@ -12,7 +17,12 @@ const char* password = "pown";
 int ledPin = 13; // GPIO13
 int greenPin = 14; // GPIO14
 int value = LOW;
- 
+
+OneWire oneWire(ONE_WIRE_BUS);
+DallasTemperature DS18B20(&oneWire);
+
+float temp; 
+
 void setup() {
   Serial.begin(115200);
   delay(10);
@@ -54,9 +64,9 @@ void setup() {
   Serial.print(WiFi.localIP());
   Serial.println("/");
 
-  //server.on("/", handleWeb);
+  DS18B20.begin();
 
-  server.on("/led", []() {
+  server.on("/ajax/led", []() {
     if (value == 0) {
       Serial.println("LED on page");
       value = HIGH;
@@ -68,31 +78,36 @@ void setup() {
   }}
   );
 
-  server.on ( "/microajax.js", []() {
-    Serial.println("microajax.js");
-    server.send ( 200, "text/plain", PAGE_microajax_js );
-  } );
+  server.on("/ajax/temp", []() {
+    Serial.println("LED on page");
+    DS18B20.requestTemperatures();
+    temp = DS18B20.getTempCByIndex(0);
+    server.send(200, "text/html", String(temp));
+  }
+  );
+
+  server.on("/ajax/ledOn", handleLEDon);
+  server.on("/ajax/ledOff", handleLEDoff);
+
+  server.on("/ajax/stop", handleStop);
+  server.on("/ajax/start", handleRun);
+
+  server.on("/ajax/left", handleLeft);
+  server.on("/ajax/right", handleRight);
+
+  server.on ( "/microajax.js", handleAjax);
 
   server.on ( "/favicon.ico",   []() {
         Serial.println("favicon.ico");
         server.send ( 200, "text/html", "" );
       }  );
-
-  server.on("/ledOn", handleLEDon);
-  server.on("/ledOff", handleLEDoff);
-
-  server.on("/stop", handleStop);
-  server.on("/start", handleRun);
-
-  server.on("/left", handleLeft);
-  server.on("/right", handleRight);
+  server.on("/", handleWeb);
 
   server.onNotFound([]() {
     Serial.println("returning not found");
     server.send(200, "text/plain", "not found");
   });
 
- 
   server.begin();
   Serial.println("HTTP server started");
   digitalWrite(greenPin, HIGH);
@@ -113,7 +128,7 @@ void loop() {
 
 void handleWeb() {
   Serial.println("returning root");
-  server.send ( 200, "text/html", PAGE_Root );
+  server.send ( 200, "text/html", htmlMessage );
 }
 
 void handleLed() {
@@ -122,21 +137,18 @@ void handleLed() {
   if (value == 0) {
     Serial.println("was low, will be high");
     value = HIGH;
-    digitalWrite(greenPin, HIGH);
     server.send ( 200, "text/html", "HIGH" );
   } else {
     Serial.println("was high, will be low");
     value = LOW;
-    digitalWrite(greenPin, LOW);
     server.send ( 200, "text/html", "LOW" );
   }
-  //pinMode(greenPin, OUTPUT);
-  //digitalWrite(greenPin, value);
+  digitalWrite(greenPin, value);
 }
 
 void handleAjax() {
   Serial.println("returning ajax");
-  server.send(200,"text/xml", PAGE_microajax_js);
+  server.send(200,"text/xml", microajax_js);
 }
 
 void helloWeb() {
