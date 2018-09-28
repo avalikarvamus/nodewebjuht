@@ -34,8 +34,45 @@ $( "#right" ).click(function() {
   });
 });
 
+
+$( "#uleft" ).click(function() {
+  $.get( "/ajax/uleft", function( data ) {
+    $( "#result" ).html( data );
+    $("#rxConsole").prepend(data+"\n");
+  });
+});
+
+$( "#uright" ).click(function() {
+  $.get( "/ajax/uright", function( data ) {
+    $( "#result" ).html( data );
+    $("#rxConsole").prepend(data+"\n");
+  });
+});
+
+
+$( "#bleft" ).click(function() {
+  $.get( "/ajax/bleft", function( data ) {
+    $( "#result" ).html( data );
+    $("#rxConsole").prepend(data+"\n");
+  });
+});
+
+$( "#bright" ).click(function() {
+  $.get( "/ajax/bright", function( data ) {
+    $( "#result" ).html( data );
+    $("#rxConsole").prepend(data+"\n");
+  });
+});
+
 $( "#start" ).click(function() {
   $.get( "/ajax/start", function( data ) {
+    $( "#result" ).html( data );
+    $("#rxConsole").prepend(data+"\n");
+  });
+});
+
+$( "#back" ).click(function() {
+  $.get( "/ajax/back", function( data ) {
     $( "#result" ).html( data );
     $("#rxConsole").prepend(data+"\n");
   });

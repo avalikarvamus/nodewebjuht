@@ -31,9 +31,14 @@ Temperature: <div id="celsius"></div>
   <button type="button" class="btn btn-primary mnp" id="right"><i class="fas fa-angle-right"></i></button>
 </p>
 <p>
-  <button type="button" class="btn btn-primary mnp" id="left"><i class="fas fa-angle-double-left"></i></button>
+  <button type="button" class="btn btn-primary mnp" id="uleft"><i class="fas fa-angle-double-left"></i></button>
   <button type="button" class="btn btn-danger nupp" id="stop"><i class="far fa-stop-circle"></i></button>
-  <button type="button" class="btn btn-primary mnp" id="right"><i class="fas fa-angle-double-right"></i></button>
+  <button type="button" class="btn btn-primary mnp" id="uright"><i class="fas fa-angle-double-right"></i></button>
+</p>
+<p>
+  <button type="button" class="btn btn-primary mnp" id="bleft"><i class="fas fa-angle-down"></i></button>
+  <button type="button" class="btn btn-success nupp" id="back"><i class="far fa-arrow-alt-circle-down"></i></button>
+  <button type="button" class="btn btn-primary mnp" id="bright"><i class="fas fa-angle-down"></i></button>
 </p>
 <br>
 <textarea id="rxConsole"></textarea>
