@@ -71,6 +71,27 @@ $( "#start" ).click(function() {
   });
 });
 
+$( "#slow" ).click(function() {
+  $.get( "/ajax/slow", function( data ) {
+    $( "#result" ).html( data );
+    $("#rxConsole").prepend(data+"\n");
+  });
+});
+
+$( "#medium" ).click(function() {
+  $.get( "/ajax/medium", function( data ) {
+    $( "#result" ).html( data );
+    $("#rxConsole").prepend(data+"\n");
+  });
+});
+
+$( "#quick" ).click(function() {
+  $.get( "/ajax/quick", function( data ) {
+    $( "#result" ).html( data );
+    $("#rxConsole").prepend(data+"\n");
+  });
+});
+
 $( "#back" ).click(function() {
   $.get( "/ajax/back", function( data ) {
     $( "#result" ).html( data );

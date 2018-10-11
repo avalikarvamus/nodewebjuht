@@ -12,11 +12,13 @@
 
 //#define ONE_WIRE_BUS            D4
 
-#define IN1 D1
-#define IN2 D2
+#define APWM D5
+#define AIN1 D6
+#define AIN2 D7
 
-#define IN3 D3
-#define IN4 D4
+#define BPWM D8
+#define BIN1 D4
+#define BIN2 D3
 
 const char* ssid = "own";
 const char* password = "pown";
@@ -42,15 +44,17 @@ void setup() {
   digitalWrite(greenPin, LOW);
 */
 
-  pinMode(IN1, OUTPUT);
-  pinMode(IN2, OUTPUT);
-  pinMode(IN3, OUTPUT);
-  pinMode(IN4, OUTPUT);
+  pinMode(APWM, OUTPUT);
+  pinMode(AIN1, OUTPUT);
+  pinMode(AIN2, OUTPUT);
+  pinMode(BPWM, OUTPUT);
+  pinMode(BIN1, OUTPUT);
+  pinMode(BIN2, OUTPUT);
 
-  digitalWrite(IN1, LOW);
-  digitalWrite(IN2, LOW);
-  digitalWrite(IN3, LOW);
-  digitalWrite(IN4, LOW);
+  digitalWrite(AIN1, LOW);
+  digitalWrite(AIN2, LOW);
+  digitalWrite(BIN1, LOW);
+  digitalWrite(BIN2, LOW);
 
   // Connect to WiFi network
   Serial.println();
@@ -97,11 +101,12 @@ void setup() {
       server.send(200, "text/html", "GreenOFF");
   }*/
   Serial.println("whatever 2");
+  server.send(200, "text/html", "whatever 2");
   }
   );
 
   server.on("/ajax/temp", []() {
-    Serial.println("LED on page");
+    Serial.println("temp page");
     /*
     DS18B20.requestTemperatures();
     temp = DS18B20.getTempCByIndex(0);
@@ -115,6 +120,9 @@ void setup() {
 
   server.on("/ajax/stop", handleStop);
   server.on("/ajax/start", handleRun);
+  server.on("/ajax/slow", handleSlow);
+  server.on("/ajax/medium", handleMedium);
+  server.on("/ajax/quick", handleQuick);
 
   server.on("/ajax/left", handleLeft);
   server.on("/ajax/right", handleRight);
@@ -151,29 +159,41 @@ void setup() {
   digitalWrite(greenPin, LOW);*/
 }
 
-void SetSpeed(char MOTOR, int SPEED) {
-    int dir = 0;
-    if(SPEED < 0) {
-        dir = 1;
-        SPEED = SPEED * -1;
-    }
-
-    if(MOTOR == 'a') {
-        Serial.printf("Left - Speed: %u Direction %u \n", SPEED, dir);
-        digitalWrite(IN2, dir);
-        analogWrite(IN1, SPEED);
-    } else if(MOTOR == 'b') {
-        Serial.printf("Right - Speed: %u Direction %u \n", SPEED, dir);
-        digitalWrite(IN4, dir);
-        analogWrite(IN3, SPEED);
-    }
+void SetStop(char MOTOR) {
+  if (MOTOR == 'a') {
+    digitalWrite(AIN1, LOW);
+    digitalWrite(AIN2, LOW);
+    analogWrite(APWM, LOW);
+  } else if (MOTOR == 'b') {
+    digitalWrite(BIN1, LOW);
+    digitalWrite(BIN2, LOW);
+    analogWrite(BPWM, LOW);
+  }
 }
 
-void SetStop() {
-  digitalWrite(IN1, LOW);
-  digitalWrite(IN2, LOW);
-  digitalWrite(IN3, LOW);
-  digitalWrite(IN4, LOW);
+char * SetSpeed(char MOTOR, int SPEED) {
+    int dir = LOW;
+    if(SPEED < 0) {
+        dir = HIGH;
+        SPEED = SPEED * -1;
+    }
+    if(SPEED == 0) {
+        SetStop(MOTOR);
+        return "Motor stopped \n";
+    } else {
+      if(MOTOR == 'a') {
+        digitalWrite(AIN2, dir);
+        digitalWrite(AIN1, HIGH);
+        analogWrite(APWM, SPEED);
+        return "Left - Speed: Direction  \n";
+      } else if(MOTOR == 'b') {
+        digitalWrite(BIN2, dir);
+        digitalWrite(BIN1, HIGH);
+        analogWrite(BPWM, SPEED);
+        return "Right - Speed: %u Direction %u \n";
+      }
+      return "Unknown motor";
+    }
 }
 
 void handleWeb() {
@@ -211,9 +231,8 @@ void handleStop() {
  Serial.println("STOP!");
  //digitalWrite(greenPin,HIGH);
  server.send(200, "text/html", "STOP");
- SetStop();
- //SetSpeed('a', LOW);
- //SetSpeed('b', LOW);
+ SetStop('a');
+ SetStop('b');
 }
 
 void handleRun() {
@@ -224,19 +243,43 @@ void handleRun() {
  SetSpeed('b', 1023);
 }
 
+void handleSlow() {
+ Serial.println("SLOW");
+ //digitalWrite(greenPin,LOW);
+ server.send(200, "text/html", "SLOW");
+ SetSpeed('a', 500);
+ SetSpeed('b', 500);
+}
+
+void handleMedium() {
+ Serial.println("MEDIUM");
+ //digitalWrite(greenPin,LOW);
+ server.send(200, "text/html", "MEDIUM");
+ SetSpeed('a', 850);
+ SetSpeed('b', 850);
+}
+
+void handleQuick() {
+ Serial.println("QUICK");
+ //digitalWrite(greenPin,LOW);
+ server.send(200, "text/html", "QUICK");
+ SetSpeed('a', 1023);
+ SetSpeed('b', 1023);
+}
+
 void handleBack() {
  Serial.println("BACK");
  //digitalWrite(greenPin,LOW);
  server.send(200, "text/html", "BACK");
- SetSpeed('a', -900);
- SetSpeed('b', -900);
+ SetSpeed('a', -1023);
+ SetSpeed('b', -1023);
 }
 
 void handleLeft() {
  Serial.println("LEFT");
  //digitalWrite(greenPin,LOW);
  server.send(200, "text/html", "LEFT");
- SetSpeed('a', 800);
+ SetSpeed('a', 0);
  SetSpeed('b', 1023);
 }
 
@@ -245,7 +288,7 @@ void handleRight() {
  //digitalWrite(greenPin,LOW);
  server.send(200, "text/html", "RIGHT");
  SetSpeed('a', 1023);
- SetSpeed('b', 800);
+ SetSpeed('b', 0);
 }
 
 
@@ -253,7 +296,7 @@ void handleULeft() {
  Serial.println("ULEFT");
  //digitalWrite(greenPin,LOW);
  server.send(200, "text/html", "ULEFT");
- SetSpeed('a', -800);
+ SetSpeed('a', -1023);
  SetSpeed('b', 1023);
 }
 
@@ -262,7 +305,7 @@ void handleURight() {
  //digitalWrite(greenPin,LOW);
  server.send(200, "text/html", "URIGHT");
  SetSpeed('a', 1023);
- SetSpeed('b', -800);
+ SetSpeed('b', -1023);
 }
 
 
@@ -270,7 +313,7 @@ void handleBLeft() {
  Serial.println("BLEFT");
  //digitalWrite(greenPin,LOW);
  server.send(200, "text/html", "BLEFT");
- SetSpeed('a', -500);
+ SetSpeed('a', -1000);
  SetSpeed('b', -1023);
 }
 
@@ -279,7 +322,7 @@ void handleBRight() {
  //digitalWrite(greenPin,LOW);
  server.send(200, "text/html", "BRIGHT");
  SetSpeed('a', -1023);
- SetSpeed('b', -500);
+ SetSpeed('b', -1000);
 }
 
 void handleLEDon() {

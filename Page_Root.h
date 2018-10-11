@@ -26,6 +26,11 @@ Temperature: <div id="celsius"></div>
   <br>
 </p>
 <p>
+  <button type="button" class="btn btn-success nupp" id="slow"><i class="fas fa-angle-right"></i></button>
+  <button type="button" class="btn btn-success nupp" id="medium"><i class="far fa-arrow-alt-circle-up"></i></button>
+  <button type="button" class="btn btn-success nupp" id="quick"><i class="fas fa-angle-double-right"></i></button>
+</p>
+<p>
   <button type="button" class="btn btn-primary mnp" id="left"><i class="fas fa-angle-left"></i></button>
   <button type="button" class="btn btn-success nupp" id="start"><i class="far fa-arrow-alt-circle-up"></i></button>
   <button type="button" class="btn btn-primary mnp" id="right"><i class="fas fa-angle-right"></i></button>
