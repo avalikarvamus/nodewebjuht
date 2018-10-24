@@ -12,17 +12,18 @@
 
 //#define ONE_WIRE_BUS            D4
 
-#define APWM D5
-#define AIN1 D6
-#define AIN2 D7
+#define APWM 1
+#define AIN1 3
+#define AIN2 15
 
-#define BPWM D8
-#define BIN1 D4
-#define BIN2 D3
+#define BPWM 14
+#define BIN1 13
+#define BIN2 12
 
 const char* ssid = "own";
 const char* password = "pown";
 
+boolean softAp = true;
 /*
 int ledPin = 13; // GPIO13
 int greenPin = 14; // GPIO14
@@ -35,7 +36,13 @@ DallasTemperature DS18B20(&oneWire);
 float temp;
 */
 void setup() {
-  Serial.begin(115200);
+  //********** CHANGE PIN FUNCTION  TO GPIO **********
+  //GPIO 1 (TX) swap the pin to a GPIO.
+  pinMode(1, FUNCTION_3); 
+  //GPIO 3 (RX) swap the pin to a GPIO.
+  pinMode(3, FUNCTION_3); 
+  //**************************************************
+  //Serial.begin(115200);
   delay(10);
 /*
   pinMode(ledPin, OUTPUT);
@@ -55,58 +62,66 @@ void setup() {
   digitalWrite(AIN2, LOW);
   digitalWrite(BIN1, LOW);
   digitalWrite(BIN2, LOW);
-
-  // Connect to WiFi network
-  Serial.println();
-  Serial.println();
-  Serial.print("Connecting to ");
-  Serial.println(ssid);
-
-  WiFi.hostname("nodewebjuht");
-  WiFi.begin(ssid, password);
-  //digitalWrite(ledPin, HIGH);
-
-  while (WiFi.status() != WL_CONNECTED) {
-    //delay(250);
-    //digitalWrite(ledPin, LOW);
-    delay(250);
+  boolean softAp = false;
+  if (softAp) {
+    ////Serial.print("Setting soft-AP ... ");
+    boolean result = WiFi.softAP("esprobot", "salakala");
+    if(result == true)
+     {
+      //Serial.println("Ready");
+     }
+    else
+      {
+      //Serial.println("Failed!");
+      }
+  } else
+  {
+    // Connect to WiFi network
+    ////Serial.println();
+    ////Serial.print("Connecting to ");
+    ////Serial.println(ssid);
+    WiFi.hostname("nodewebjuht");
+    WiFi.begin(ssid, password);
     //digitalWrite(ledPin, HIGH);
-    Serial.print(".");
-  }
-  Serial.println("");
-  Serial.println("WiFi connected");
-  //digitalWrite(ledPin, LOW);
-  //digitalWrite(greenPin, HIGH);
-  delay(250);
-  //digitalWrite(greenPin, LOW);
 
-  Serial.println("Networking connected");
+    while (WiFi.status() != WL_CONNECTED) {
+      //delay(250);
+      //digitalWrite(ledPin, LOW);
+      delay(250);
+      //digitalWrite(ledPin, HIGH);
+      ////Serial.print(".");
+    }
+    ////Serial.println("");
+    ////Serial.println("WiFi connected");
+    delay(250);
+  }
+  //Serial.println("Networking connected");
 
   // Print the IP address
-  Serial.print("Use this URL to connect: ");
-  Serial.print("http://");
-  Serial.print(WiFi.localIP());
-  Serial.println("/");
+  //Serial.print("Use this URL to connect: ");
+  //Serial.print("http://");
+  //Serial.print(WiFi.localIP());
+  //Serial.println("/");
 
 //  DS18B20.begin();
 
   server.on("/ajax/led", []() {
     /*if (value == 0) {
-      Serial.println("LED on page");
+      //Serial.println("LED on page");
       value = HIGH;
       server.send(200, "text/html", "GreenON");
   } else {
-      Serial.println("LED off page");
+      //Serial.println("LED off page");
       value = LOW;
       server.send(200, "text/html", "GreenOFF");
   }*/
-  Serial.println("whatever 2");
+  //Serial.println("whatever 2");
   server.send(200, "text/html", "whatever 2");
   }
   );
 
   server.on("/ajax/temp", []() {
-    Serial.println("temp page");
+    //Serial.println("temp page");
     /*
     DS18B20.requestTemperatures();
     temp = DS18B20.getTempCByIndex(0);
@@ -138,18 +153,18 @@ void setup() {
   server.on ( "/microajax.js", handleAjax);
 
   server.on ( "/favicon.ico",   []() {
-        Serial.println("favicon.ico");
+        //Serial.println("favicon.ico");
         server.send ( 200, "text/html", "" );
       }  );
   server.on("/", handleWeb);
 
   server.onNotFound([]() {
-    Serial.println("returning not found");
+    //Serial.println("returning not found");
     server.send(200, "text/plain", "not found");
   });
 
   server.begin();
-  Serial.println("HTTP server started");
+  //Serial.println("HTTP server started");
   /*digitalWrite(greenPin, HIGH);
   delay(50);
   digitalWrite(greenPin, LOW);
@@ -171,7 +186,7 @@ void SetStop(char MOTOR) {
   }
 }
 
-char * SetSpeed(char MOTOR, int SPEED) {
+String SetSpeed(char MOTOR, int SPEED) {
     int dir = LOW;
     if(SPEED < 0) {
         dir = HIGH;
@@ -185,154 +200,154 @@ char * SetSpeed(char MOTOR, int SPEED) {
         digitalWrite(AIN2, dir);
         digitalWrite(AIN1, HIGH);
         analogWrite(APWM, SPEED);
-        return "Left - Speed: Direction  \n";
+        return " Left - Speed: %u Direction %u \n";
       } else if(MOTOR == 'b') {
         digitalWrite(BIN2, dir);
         digitalWrite(BIN1, HIGH);
         analogWrite(BPWM, SPEED);
-        return "Right - Speed: %u Direction %u \n";
+        return snprintf(" Right - Speed: %i Direction %u \n", String(SPEED), String(dir));
       }
-      return "Unknown motor";
+      return " Unknown motor";
     }
 }
 
 void handleWeb() {
-  Serial.println("returning root");
+  //Serial.println("returning root");
   server.send ( 200, "text/html", htmlMessage );
 }
 
 void handleLed() {
-  Serial.println("switch led");
-  /*Serial.println(value);
+  //Serial.println("switch led");
+  /*//Serial.println(value);
   if (value == 0) {
-    Serial.println("was low, will be high");
+    //Serial.println("was low, will be high");
     value = HIGH;
     server.send ( 200, "text/html", "HIGH" );
   } else {
-    Serial.println("was high, will be low");
+    //Serial.println("was high, will be low");
     value = LOW;
     server.send ( 200, "text/html", "LOW" );
   }
   digitalWrite(greenPin, value);*/
-  Serial.println("whatever");
+  //Serial.println("whatever");
 }
 
 void handleAjax() {
-  Serial.println("returning ajax");
+  //Serial.println("returning ajax");
   server.send(200,"text/xml", microajax_js);
 }
 
 void helloWeb() {
-  Serial.println("returning hello");
+  //Serial.println("returning hello");
   server.send(200,"text/xml", "hello");
 }
 
 void handleStop() {
- Serial.println("STOP!");
+ //Serial.println("STOP!");
  //digitalWrite(greenPin,HIGH);
- server.send(200, "text/html", "STOP");
+ server.send(200, "text/html", "STOP A: setStop B: setStop");
  SetStop('a');
  SetStop('b');
 }
 
 void handleRun() {
- Serial.println("RUN");
+ //Serial.println("RUN");
  //digitalWrite(greenPin,LOW);
- server.send(200, "text/html", "RUN");
- SetSpeed('a', 1023);
- SetSpeed('b', 1023);
+ String ret = SetSpeed('a', 1023);
+ ret = ret + SetSpeed('b', 1023);
+ server.send(200, "text/html", "RUN A: 1023 B: 1023"+ret);
 }
 
 void handleSlow() {
- Serial.println("SLOW");
+ //Serial.println("SLOW");
  //digitalWrite(greenPin,LOW);
- server.send(200, "text/html", "SLOW");
+ server.send(200, "text/html", "SLOW A: 500 B: 500");
  SetSpeed('a', 500);
  SetSpeed('b', 500);
 }
 
 void handleMedium() {
- Serial.println("MEDIUM");
+ //Serial.println("MEDIUM");
  //digitalWrite(greenPin,LOW);
- server.send(200, "text/html", "MEDIUM");
- SetSpeed('a', 850);
- SetSpeed('b', 850);
+ server.send(200, "text/html", "MEDIUM A: 750 B: 750");
+ SetSpeed('a', 750);
+ SetSpeed('b', 750);
 }
 
 void handleQuick() {
- Serial.println("QUICK");
+ //Serial.println("QUICK");
  //digitalWrite(greenPin,LOW);
- server.send(200, "text/html", "QUICK");
+ server.send(200, "text/html", "QUICK A: 1023 B: 1023");
  SetSpeed('a', 1023);
  SetSpeed('b', 1023);
 }
 
 void handleBack() {
- Serial.println("BACK");
+ //Serial.println("BACK");
  //digitalWrite(greenPin,LOW);
- server.send(200, "text/html", "BACK");
+ server.send(200, "text/html", "BACK A: -1023 B: -1023");
  SetSpeed('a', -1023);
  SetSpeed('b', -1023);
 }
 
 void handleLeft() {
- Serial.println("LEFT");
+ //Serial.println("LEFT");
  //digitalWrite(greenPin,LOW);
- server.send(200, "text/html", "LEFT");
- SetSpeed('a', 0);
+ server.send(200, "text/html", "LEFT  A: 500 B: 1023");
+ SetSpeed('a', 500);
  SetSpeed('b', 1023);
 }
 
 void handleRight() {
- Serial.println("RIGHT");
+ //Serial.println("RIGHT");
  //digitalWrite(greenPin,LOW);
- server.send(200, "text/html", "RIGHT");
+ server.send(200, "text/html", "RIGHT  A: 1023 B: 500");
  SetSpeed('a', 1023);
- SetSpeed('b', 0);
+ SetSpeed('b', 500);
 }
 
 
 void handleULeft() {
- Serial.println("ULEFT");
+ //Serial.println("ULEFT");
  //digitalWrite(greenPin,LOW);
- server.send(200, "text/html", "ULEFT");
+ server.send(200, "text/html", "ULEFT  A: -1023 B: 1023");
  SetSpeed('a', -1023);
  SetSpeed('b', 1023);
 }
 
 void handleURight() {
- Serial.println("URIGHT");
+ //Serial.println("URIGHT");
  //digitalWrite(greenPin,LOW);
- server.send(200, "text/html", "URIGHT");
+ server.send(200, "text/html", "URIGHT  A: 1023 B: -1023");
  SetSpeed('a', 1023);
  SetSpeed('b', -1023);
 }
 
 
 void handleBLeft() {
- Serial.println("BLEFT");
+ //Serial.println("BLEFT");
  //digitalWrite(greenPin,LOW);
- server.send(200, "text/html", "BLEFT");
- SetSpeed('a', -1000);
+ server.send(200, "text/html", "BLEFT  A: 0 B: -1023");
+ SetSpeed('a', 0);
  SetSpeed('b', -1023);
 }
 
 void handleBRight() {
- Serial.println("BRIGHT");
+ //Serial.println("BRIGHT");
  //digitalWrite(greenPin,LOW);
- server.send(200, "text/html", "BRIGHT");
+ server.send(200, "text/html", "BRIGHT A: -1023 B: 0");
  SetSpeed('a', -1023);
- SetSpeed('b', -1000);
+ SetSpeed('b', 0);
 }
 
 void handleLEDon() {
- Serial.println("LED on page");
+ //Serial.println("LED on page");
  //digitalWrite(ledPin,HIGH);
  server.send(200, "text/html", "ON");
 }
 
 void handleLEDoff() {
- Serial.println("LED off page");
+ //Serial.println("LED off page");
  //digitalWrite(ledPin,LOW);
  server.send(200, "text/html", "OFF");
 }
