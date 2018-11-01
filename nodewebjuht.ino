@@ -24,13 +24,13 @@ const char* ssid = "own";
 const char* password = "pown";
 
 boolean softAp = true;
-/*
-int ledPin = 13; // GPIO13
-int greenPin = 14; // GPIO14
+
+int ledPin = 4; // GPIO13
+int greenPin = 5; // GPIO14
 int value = LOW;
 
 
-OneWire oneWire(ONE_WIRE_BUS);
+/*OneWire oneWire(ONE_WIRE_BUS);
 DallasTemperature DS18B20(&oneWire);
 
 float temp;
@@ -205,7 +205,7 @@ String SetSpeed(char MOTOR, int SPEED) {
         digitalWrite(BIN2, dir);
         digitalWrite(BIN1, HIGH);
         analogWrite(BPWM, SPEED);
-        return snprintf(" Right - Speed: %i Direction %u \n", String(SPEED), String(dir));
+        return " Right - Speed: "+String(SPEED)+" Direction "+String(dir)+" \n";
       }
       return " Unknown motor";
     }
